@@ -1,0 +1,34 @@
+{
+    "GroupMe": {
+        "62032441": {
+            "id": "62032441",
+            "last_msg": "",
+            "name": "Data Science \ud83e\uddec\ud83e\uddea\ud83e\uddeb",
+            "type": "group"
+        },
+        "62094997": {
+            "id": "62094997",
+            "last_msg": "",
+            "name": "Computer Programming II",
+            "type": "group"
+        },
+        "62151992": {
+            "id": "62151992",
+            "last_msg": "",
+            "name": "Pre-Calc",
+            "type": "group"
+        },
+        "62232906": {
+            "id": "62232906",
+            "last_msg": "",
+            "name": "ENGL 102",
+            "type": "group"
+        },
+        "87778479": {
+            "id": "87778479",
+            "last_msg": "",
+            "name": "mahek rizwan",
+            "type": "chat"
+        }
+    }
+}

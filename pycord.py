@@ -2,16 +2,19 @@ import discord
 import sys
 
 class DiscordClient(discord.Client):
+    def __init__(self):
+        super().__init__()
+
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
         print(self.guilds)
     
     async def on_message(self, msg):
-        app_user = await self.application_info()
-        app_user = app_user.owner
+        app_info = await self.application_info()
+        app_user = app_info.owner
         if msg.author == app_user:
             if msg.content == '!STOP':
-                sys.exit()
+                await self.close()
             else:
                 print(msg.content)
     
