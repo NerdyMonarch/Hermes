@@ -17,12 +17,13 @@ class PyGroupMe:
                     'id': chat.other_user['id'],
                     'name': chat.other_user['name'],
                     'type': 'chat',
-                    'last_msg': ''
+                    'last_msg': '',
+                    'channel_id': ''
                 }
             last_msg_id = self.json["GroupMe"][chat.other_user['id']]['last_msg']
             new_msgs = []
             if len(last_msg_id) > 0:
-                new_msgs = list(chat.messages.list_after(last_msg_id).autopage())[::-1]
+                new_msgs = list(chat.messages.list_since(last_msg_id).autopage())[::-1]
             else:
                 new_msgs = list(chat.messages.list().autopage())[::-1]
             if len(new_msgs) > 0:
@@ -48,12 +49,13 @@ class PyGroupMe:
                     'id': group.id,
                     'name': group.name,
                     'type': 'group',
-                    'last_msg': ''
+                    'last_msg': '',
+                    'channel_id': ''
                 }
             last_msg_id = self.json["GroupMe"][group.id]['last_msg']
             new_msgs = []
             if len(last_msg_id) > 0:
-                new_msgs = list(group.messages.list_after(last_msg_id).autopage())[::-1]
+                new_msgs = list(group.messages.list_since(last_msg_id).autopage())[::-1]
             else:
                 new_msgs = list(group.messages.list().autopage())[::-1]
             if len(new_msgs) > 0:

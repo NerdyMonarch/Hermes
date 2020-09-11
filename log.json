@@ -1,32 +1,37 @@
 {
     "GroupMe": {
         "62032441": {
+            "channel_id": "",
             "id": "62032441",
-            "last_msg": "",
+            "last_msg": "159977349364513032",
             "name": "Data Science \ud83e\uddec\ud83e\uddea\ud83e\uddeb",
             "type": "group"
         },
         "62094997": {
+            "channel_id": "",
             "id": "62094997",
-            "last_msg": "",
+            "last_msg": "159972853726901963",
             "name": "Computer Programming II",
             "type": "group"
         },
         "62151992": {
+            "channel_id": "",
             "id": "62151992",
-            "last_msg": "",
+            "last_msg": "159977295006569996",
             "name": "Pre-Calc",
             "type": "group"
         },
         "62232906": {
+            "channel_id": "",
             "id": "62232906",
-            "last_msg": "",
+            "last_msg": "159978288916195149",
             "name": "ENGL 102",
             "type": "group"
         },
         "87778479": {
+            "channel_id": "",
             "id": "87778479",
-            "last_msg": "",
+            "last_msg": "159908597346993841",
             "name": "mahek rizwan",
             "type": "chat"
         }
