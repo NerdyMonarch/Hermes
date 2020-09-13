@@ -1,67 +1,46 @@
 import discord
 import asyncio
-import sys
+import pygroupme
 
 class DiscordClient(discord.Client):
-    def __init__(self):
-        super().__init__()
-        self.loop = asyncio.get_event_loop()
-        self.connected = False
-        self.running = True
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.msg_listener = self.loop.create_task(self.receiver())
 
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
-        self.connected = True
+    
+    async def receiver(self):
+        await self.wait_until_ready()
+        self.server = self.guilds[0]
+        self.groupme_category = await self.server.create_category('GroupMe')
+        while not self.is_closed():
+            self.groupme.update_chats()
+            self.groupme.update_groups()
+            for chat in self.groupme.need_channels:
+                channel = await self.groupme_category.create_text_channel(chat.name)
+                chat.channel = channel
+            self.groupme.need_channels = []
+            text_channels = self.groupme_category.text_channels
+            msgs = self.groupme.get_msgs()
+            for channel in text_channels:
+                new_msgs = msgs[channel]
+                for msg in new_msgs:
+                    if msg.text != None:
+                        await channel.send(msg.text)
+                    await asyncio.sleep(0.1)
+            await asyncio.sleep(1)
     
     async def on_message(self, msg):
-        app_info = await self.application_info()
-        app_user = app_info.owner
-        if msg.author == app_user:
-            if msg.content == '!STOP':
-                self.running = False
-                await self.close()
-            else:
-                print(msg.content)
-    
-    async def on_connect(self):
-        #self.connected = True
-        pass
-    
-    async def create_text_channel(self, name, category):
-        guild = self.guilds[0]
-        channel = await guild.create_text_channel(name)
-        await channel.create_webhook(name=name)
-        return channel.id
-    
-    async def send_msg(self, channel_id, user, msg):
-        channel = await self.fetch_channel(channel_id)
-        webhook = await channel.webhooks()
-        webhook = webhook[0]
-        await webhook.send(content=msg, username=user)
+        if msg.author != self.user:
+            print(msg.content)
+
 
 class PyCord():
-    def __init__(self, token):
+    def __init__(self, token, groupme_token):
         self.token = token
         self.client = DiscordClient()
+        self.client.groupme = pygroupme.PyGroupMe(groupme_token)
     
     def run(self):
         self.client.run(self.token)
-    
-    def create_channel(self, name, category):
-        channel = asyncio.run_coroutine_threadsafe(self.client.create_text_channel(name, category),
-                                        loop=self.client.loop)
-        while not channel.done():
-            # Do Nothing
-            pass
-        channel = channel.result()
-        return str(channel)
-
-    def send_msg(self, channel_id, user, msg, avatar):
-        asyncio.ensure_future(self.client.send_msg(int(channel_id), user, msg),
-                                loop=self.client.loop)
-    
-    def is_connected(self):
-        return self.client.connected
-
-    def is_running(self):
-        return self.client.running

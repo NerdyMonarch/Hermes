@@ -1,76 +1,56 @@
-from groupy import Client
-import getjson
+from groupy.client import Client
+
+class GroupMeChat:
+    def __init__(self, chat, is_group):
+        self.is_group = is_group
+        if self.is_group:
+            self.chat = chat
+            self.name = chat.name
+        else:
+            self.chat = chat
+            self.name = chat.other_user['name']
+        self.channel = None
+        self.last_msg = None
+
+    def get_msgs(self):
+        msgs = list(self.chat.messages.list(since_id=self.last_msg))
+        if len(msgs) > 0:
+            self.last_msg = msgs[0].id
+            msgs = msgs[::-1]
+        return msgs
 
 class PyGroupMe:
     def __init__(self, token):
         self.token = token
         self.client = Client.from_token(token)
-        self.json = getjson.get_json()
-    
-    def get_chat_msgs(self):
-        chats = list(self.client.chats.list_all())
-        known_chats = list(self.json["GroupMe"].keys())
-        msgs = {}
-        for chat in chats:
-            if chat.other_user['id'] not in known_chats:
-                self.json["GroupMe"][chat.other_user['id']] = {
-                    'id': chat.other_user['id'],
-                    'name': chat.other_user['name'],
-                    'type': 'chat',
-                    'last_msg': '',
-                    'channel_id': ''
-                }
-            last_msg_id = self.json["GroupMe"][chat.other_user['id']]['last_msg']
-            new_msgs = []
-            if len(last_msg_id) > 0:
-                new_msgs = list(chat.messages.list_since(last_msg_id).autopage())[::-1]
-            else:
-                new_msgs = list(chat.messages.list().autopage())[::-1]
-            if len(new_msgs) > 0:
-                msgs[chat.other_user['id']] = []
-                for msg in new_msgs:
-                    msgs[chat.other_user['id']].append({
-                        'name': msg.name,
-                        'avatar': msg.avatar_url,
-                        'text': msg.text
-                    })
-                self.json["GroupMe"][chat.other_user['id']]['last_msg'] = new_msgs[0].id
-        getjson.update_json(self.json)
-        return msgs
-    
-    def get_group_msgs(self):
-        groups = list(self.client.groups.list_all())
-        known_groups = list(self.json["GroupMe"].keys())
-        msgs = {}
-        for group in groups:
-            if group.id not in known_groups:
-                new_chats = True
-                self.json["GroupMe"][group.id] = {
-                    'id': group.id,
-                    'name': group.name,
-                    'type': 'group',
-                    'last_msg': '',
-                    'channel_id': ''
-                }
-            last_msg_id = self.json["GroupMe"][group.id]['last_msg']
-            new_msgs = []
-            if len(last_msg_id) > 0:
-                new_msgs = list(group.messages.list_since(last_msg_id).autopage())[::-1]
-            else:
-                new_msgs = list(group.messages.list().autopage())[::-1]
-            if len(new_msgs) > 0:
-                msgs[group.id] = []
-                for msg in new_msgs:
-                    msgs[group.id].append({
-                        'name': msg.name,
-                        'avatar': msg.avatar_url,
-                        'text': msg.text
-                    })
-                self.json["GroupMe"][group.id]['last_msg'] = new_msgs[0].id
-        getjson.update_json(self.json)
-        return msgs
-    
+        self.chats = []
+        self.groups = []
+        self.need_channels = []
+
+    def update_chats(self):
+        chats = list(self.client.chats.list().autopage())
+        if len(chats) != len(self.chats):
+            for chat in self.chats:
+                chats.remove(chat.chat)
+            for chat in chats:
+                groupmechat = GroupMeChat(chat, False)
+                self.chats.append(groupmechat)
+                self.need_channels.append(groupmechat)
+
+    def update_groups(self):
+        groups = list(self.client.groups.list().autopage())
+        if len(groups) != len(self.groups):
+            for group in self.groups:
+                groups.remove(group.chat)
+            for group in groups:
+                groupmechat = GroupMeChat(group, True)
+                self.groups.append(groupmechat)
+                self.need_channels.append(groupmechat)
+
     def get_msgs(self):
-        msgs = self.get_chat_msgs()
-        msgs.update(self.get_group_msgs())
+        msgs = {}
+        for chat in self.chats:
+            msgs.update({chat.channel:chat.get_msgs()})
+        for group in self.groups:
+            msgs.update({group.channel:group.get_msgs()})
         return msgs
