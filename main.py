@@ -8,6 +8,5 @@ load_dotenv()
 discord_token = os.getenv('DISCORD_TOKEN')
 groupme_token = os.getenv('GROUP_ME_TOKEN')
 
-groupme = pygroupme.PyGroupMe(groupme_token)
-cord = pycord.PyCord(discord_token)
+cord = pycord.PyCord(discord_token, groupme_token)
 cord.run()

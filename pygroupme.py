@@ -10,6 +10,7 @@ class GroupMeChat:
             self.chat = chat
             self.name = chat.other_user['name']
         self.channel = None
+        self.webhook = None
         self.last_msg = None
 
     def get_msgs(self):
