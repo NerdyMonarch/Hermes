@@ -1,0 +1,5 @@
+GroupyAPI==0.10.3
+discord.py==1.4.1
+discord==1.0.1
+groupy==0.5.2
+python-dotenv==0.14.0

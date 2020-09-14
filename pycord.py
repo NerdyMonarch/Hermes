@@ -13,6 +13,10 @@ class DiscordClient(discord.Client):
     async def receiver(self):
         await self.wait_until_ready()
         self.server = self.guilds[0]
+        for channel in self.server.channels:
+            await channel.delete()
+        for category in self.server.categories:
+            await category.delete()
         self.groupme_category = await self.server.create_category('GroupMe')
         while not self.is_closed():
             self.groupme.update_chats()
@@ -30,7 +34,7 @@ class DiscordClient(discord.Client):
                 webhook = await channel.webhooks()
                 webhook = webhook[0]
                 for msg in new_msgs:
-                    if msg.text != None:
+                    if msg.text != None and msg.sender_id != self.groupme.user_id:
                         avatar_url = msg.avatar_url
                         if msg.avatar_url == None:
                             avatar_url = 'https://www.insidehighered.com/sites/default/server_files/styles/large/public/media/GroupMe.jpg?itok=reEAv1vJ'
@@ -39,8 +43,8 @@ class DiscordClient(discord.Client):
             await asyncio.sleep(1)
     
     async def on_message(self, msg):
-        if msg.author != self.user:
-            print(msg.content)
+        if not msg.author.bot:
+            self.groupme.send_msg(msg.channel, msg.content)
 
 
 class PyCord():
@@ -48,6 +52,6 @@ class PyCord():
         self.token = token
         self.client = DiscordClient()
         self.client.groupme = pygroupme.PyGroupMe(groupme_token)
-    
+
     def run(self):
         self.client.run(self.token)
