@@ -1,4 +1,4 @@
-from groupy.client import Client
+from groupy import Client
 
 class GroupMeChat:
     def __init__(self, chat, is_group):
